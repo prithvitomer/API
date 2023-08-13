@@ -1,0 +1,15 @@
+{
+  "name": "node-api-example",
+  "version": "1.0.0",
+  "description": "Node.js API example with improved security and exception handling",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "dependencies": {
+    "express": "^4.17.1",
+    "body-parser": "^1.19.0"
+  },
+  "author": "Prithvi Tomer",
+  "license": "MIT"
+}

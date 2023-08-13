@@ -1,0 +1,54 @@
+trigger:
+  branches:
+    include:
+      - master
+
+pr: none
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+stages:
+- stage: Build
+  jobs:
+  - job: BuildAndTest
+    steps:
+    - script: npm install
+      displayName: 'Install Node.js dependencies'
+
+    - script: npm run
+      displayName: 'Build the application'      
+
+    - script: |
+        docker build -t $(Build.Repository.Name)-$(Build.BuildNumber) -t $(Build.Repository.Name):latest -f dockerfile .
+        docker login $(dockerRegistry) -u $(acrUsername) -p $(acrPassword)
+        docker tag $(Build.Repository.Name)-$(Build.BuildNumber) $(dockerRegistry)/$(Build.Repository.Name):$(Build.BuildNumber)
+        docker tag $(Build.Repository.Name)-$(Build.BuildNumber) $(dockerRegistry)/$(Build.Repository.Name):latest
+        docker push $(dockerRegistry)/$(Build.Repository.Name):$(Build.BuildNumber)
+        docker push $(dockerRegistry)/$(Build.Repository.Name):latest
+      displayName: 'Build and push Docker image'
+
+    # Install Trivy
+    - script: |
+        wget https://github.com/aquasecurity/trivy/releases/download/v0.18.0/trivy_0.18.0_Linux-64bit.deb
+        sudo dpkg -i trivy_0.18.0_Linux-64bit.deb
+      displayName: 'Install Trivy'
+
+    # Run Trivy scan on the Docker image
+    - script: trivy $(dockerRegistry)/$(Build.Repository.Name):$(Build.BuildNumber)
+      displayName: 'Run Trivy scan'
+
+- stage: Deploy
+  jobs:
+  - job: DeployToAKS
+    steps:
+    - script: |
+        az login --service-principal -u $(servicePrincipalId) -p $(servicePrincipalKey) --tenant $(tenantId)
+        az aks get-credentials --resource-group $(resourceGroupName) --name $(aksClusterName)
+        export BUILD_TAG=$(Build.BuildNumber)
+        echo $BUILD_TAG
+        kubectl apply -f AzureInfa/k8cluster_yaml/deployment.yaml
+        kubectl apply -f AzureInfa/k8cluster_yaml/network-policy.yaml
+        kubectl apply -f AzureInfa/k8cluster_yaml/loadbalancer-service.yaml
+        kubectl apply -f AzureInfa/k8cluster_yaml/service.yaml        
+      displayName: 'Deploy to Azure Kubernetes Service'

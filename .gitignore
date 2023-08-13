@@ -1,0 +1,73 @@
+# Node.js
+node_modules/
+npm-debug.log
+yarn-error.log
+*.log
+
+# Dependencies
+*.env
+.env.local
+.env.*.local
+
+# Build
+build/
+dist/
+
+# Editor
+.vscode/
+.idea/
+
+# Logs
+logs/
+*.log.*
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# WebStorm
+.idea/
+*.iml
+
+# Visual Studio Code
+.vscode/
+.history/
+
+# Node.js modules
+node_modules/
+
+# Testing
+coverage/
+
+# Temporary
+*.swp
+*.swo
+*.tmp
+
+# Compiled binary addons (https://github.com/sass/node-sass/issues/683)
+.node-gyp/
+
+# Nuxt.js
+.nuxt/
+.storybook/
+
+# Yarn
+.yarn/*
+!.yarn/cache
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+.pnp.*
+
+# TypeScript
+tsconfig.tsbuildinfo
+
+# Docker
+.DS_Store
+docker-compose.override.yml
